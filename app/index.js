@@ -1,19 +1,14 @@
 const http = require('http');
 const fs = require('fs');
+const ejs = require('ejs');
 
-const promiseReadFile = (filePath) => {
-  return new Promise((resolve, reject) => {
-    fs.readFile(filePath, 'UTF-8', (err, data) => {
-      err ? reject(err) : resolve(data);
-    });
-  });
-};
+const index_page = fs.readFileSync('./html_files/index.ejs', 'utf8');
 
-const getFromClient = async (request, response) => {
-  const filePath = './html_files/index.html';
-  const data = await promiseReadFile(filePath);
+const getFromClient = (request, response) => {
+  const content = ejs.render(index_page);
+
   response.writeHead(200, { 'Content-Type': 'text/html' });
-  response.write(data);
+  response.write(content);
   response.end();
 };
 
