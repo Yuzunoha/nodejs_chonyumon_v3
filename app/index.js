@@ -8,14 +8,16 @@ const other_page = fs.readFileSync('./html_files/other.ejs', 'utf8');
 const style_css = fs.readFileSync('./html_files/style.css', 'utf8');
 
 const getFromClient = (request, response) => {
-  const url_parts = url.parse(request.url);
+  const url_parts = url.parse(request.url, true);
+  const query = url_parts.query;
   let content_type, content;
   switch (url_parts.pathname) {
     case '/':
       content_type = 'text/html';
+      const msg = query.msg !== undefined ? `「${query.msg}」` : '';
       content = ejs.render(index_page, {
         title: 'Index',
-        content: 'これはテンプレートを使ったサンプルページです。',
+        content: 'これはテンプレートを使ったサンプルページです。' + msg,
       });
       break;
     case '/other':
