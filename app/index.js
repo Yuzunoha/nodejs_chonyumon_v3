@@ -4,6 +4,7 @@ const ejs = require('ejs');
 const url = require('url');
 
 const index_page = fs.readFileSync('./html_files/index.ejs', 'utf8');
+const other_page = fs.readFileSync('./html_files/other.ejs', 'utf8');
 const style_css = fs.readFileSync('./html_files/style.css', 'utf8');
 
 const getFromClient = (request, response) => {
@@ -12,11 +13,17 @@ const getFromClient = (request, response) => {
   switch (url_parts.pathname) {
     case '/':
       content_type = 'text/html';
-      const data = {
-        title: 'タイトル。Indexページ',
-        content: 'コンテンツ。これはテンプレートを使ったサンプルページです。',
-      };
-      content = ejs.render(index_page, data);
+      content = ejs.render(index_page, {
+        title: 'Index',
+        content: 'これはテンプレートを使ったサンプルページです。',
+      });
+      break;
+    case '/other':
+      content_type = 'text/html';
+      content = ejs.render(other_page, {
+        title: 'Other',
+        content: 'Otherページです。',
+      });
       break;
     case '/style.css':
       content_type = 'text/css';
