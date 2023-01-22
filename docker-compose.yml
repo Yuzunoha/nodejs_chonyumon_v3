@@ -13,5 +13,5 @@ services:
       sh -c "echo === コマンド開始 ===
       && pwd && whoami && ls -la
       && npm install
-      && sh
+      && npm run nodemon
       "
