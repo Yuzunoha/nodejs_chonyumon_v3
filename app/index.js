@@ -2,6 +2,7 @@ const http = require('http');
 const fs = require('fs');
 const ejs = require('ejs');
 const url = require('url');
+const qs = require('querystring');
 
 const index_page = fs.readFileSync('./html_files/index.ejs', 'utf8');
 const other_page = fs.readFileSync('./html_files/other.ejs', 'utf8');
@@ -13,25 +14,39 @@ const sendResponse = (response, content_type, render_result) => {
   response.end();
 };
 
+const response_index = (request, response) => {
+  const msg = 'これはIndexページです。';
+  const content = ejs.render(index_page, { title: 'Index', content: msg });
+  sendResponse(response, 'text/html', content);
+};
+
+const response_other = (request, response) => {
+  let msg = 'これはOtherページです。';
+  if (request.method === 'POST') {
+    let body = '';
+    request.on('data', (data) => (body += data));
+    request.on('end', () => {
+      const post_data = qs.parse(body); // データのパース
+      console.log({ body, post_data });
+      msg += `post_data.msg: ${post_data.msg}`;
+      const content = ejs.render(other_page, { title: 'Other', content: msg });
+      sendResponse(response, 'text/html', content);
+    });
+  } else {
+    msg = 'ページがありません';
+    const content = ejs.render(other_page, { title: 'Other', content: msg });
+    sendResponse(response, 'text/html', content);
+  }
+};
+
 const getFromClient = (request, response) => {
   const url_parts = url.parse(request.url, true);
-  const query = url_parts.query;
-  let render_result;
   switch (url_parts.pathname) {
     case '/':
-      const msg = query.msg !== undefined ? `「${query.msg}」` : '';
-      render_result = ejs.render(index_page, {
-        title: 'Index',
-        content: 'これはテンプレートを使ったサンプルページです。' + msg,
-      });
-      sendResponse(response, 'text/html', render_result);
+      response_index(request, response);
       break;
     case '/other':
-      render_result = ejs.render(other_page, {
-        title: 'Other',
-        content: 'Otherページです。',
-      });
-      sendResponse(response, 'text/html', render_result);
+      response_other(request, response);
       break;
     case '/style.css':
       sendResponse(response, 'text/css', style_css);
