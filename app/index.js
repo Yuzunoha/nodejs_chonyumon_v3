@@ -7,37 +7,38 @@ const index_page = fs.readFileSync('./html_files/index.ejs', 'utf8');
 const other_page = fs.readFileSync('./html_files/other.ejs', 'utf8');
 const style_css = fs.readFileSync('./html_files/style.css', 'utf8');
 
+const sendResponse = (response, content_type, render_result) => {
+  response.writeHead(200, { 'Content-Type': content_type });
+  response.write(render_result);
+  response.end();
+};
+
 const getFromClient = (request, response) => {
   const url_parts = url.parse(request.url, true);
   const query = url_parts.query;
-  let content_type, content;
+  let render_result;
   switch (url_parts.pathname) {
     case '/':
-      content_type = 'text/html';
       const msg = query.msg !== undefined ? `「${query.msg}」` : '';
-      content = ejs.render(index_page, {
+      render_result = ejs.render(index_page, {
         title: 'Index',
         content: 'これはテンプレートを使ったサンプルページです。' + msg,
       });
+      sendResponse(response, 'text/html', render_result);
       break;
     case '/other':
-      content_type = 'text/html';
-      content = ejs.render(other_page, {
+      render_result = ejs.render(other_page, {
         title: 'Other',
         content: 'Otherページです。',
       });
+      sendResponse(response, 'text/html', render_result);
       break;
     case '/style.css':
-      content_type = 'text/css';
-      content = style_css;
+      sendResponse(response, 'text/css', style_css);
       break;
     default:
-      content_type = 'text/plain';
-      content = 'no page ...';
+      sendResponse(response, 'text/plain', 'no page ...');
   }
-  response.writeHead(200, { 'Content-Type': content_type });
-  response.write(content);
-  response.end();
 };
 
 const server = http.createServer(getFromClient);
