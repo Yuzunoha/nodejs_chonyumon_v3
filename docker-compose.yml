@@ -1,0 +1,17 @@
+version: '3'
+services:
+  webserver:
+    image: node:14-alpine
+    container_name: nodejs_chonyumon_v3_app_container
+    tty: true
+    volumes:
+      - ./app:/app
+    ports:
+      - '80:3000'
+    working_dir: /app
+    command: >
+      sh -c "echo === コマンド開始 ===
+      && pwd && whoami && ls -la
+      && npm install
+      && sh
+      "
