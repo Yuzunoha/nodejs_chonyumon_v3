@@ -14,20 +14,29 @@ const sendResponse = (response, content_type, render_result) => {
   response.end();
 };
 
-const response_index = (request, response) => {
-  const data = {
-    Taro: '090-999-999',
-    Hanako: '080-888-888',
-    Sachiko: '070-777-777',
-    Ichiro: '060-666-666',
-  };
-  const content = ejs.render(index_page, {
+let data = { msg: 'no message...' };
+
+const write_index = (request, response) => {
+  var msg = '※伝言を表示します。';
+  var content = ejs.render(index_page, {
     title: 'Index',
-    content: 'これはIndexページです。',
-    data: data,
-    filename: './html_files/data_item.ejs', // includeのために必須
+    content: msg,
+    data,
   });
   sendResponse(response, 'text/html', content);
+};
+
+const response_index = (request, response) => {
+  if ('POST' === request.method) {
+    let body = '';
+    request.on('data', (data) => (body += data));
+    request.on('end', () => {
+      data = qs.parse(body);
+      write_index(request, response);
+    });
+  } else {
+    write_index(request, response);
+  }
 };
 
 function response_other(request, response) {
