@@ -30,24 +30,21 @@ const response_index = (request, response) => {
   sendResponse(response, 'text/html', content);
 };
 
-const response_other = (request, response) => {
-  let msg = 'これはOtherページです。';
-  if (request.method === 'POST') {
-    let body = '';
-    request.on('data', (data) => (body += data));
-    request.on('end', () => {
-      const post_data = qs.parse(body); // データのパース
-      console.log({ body, post_data });
-      msg += `post_data.msg: ${post_data.msg}`;
-      const content = ejs.render(other_page, { title: 'Other', content: msg });
-      sendResponse(response, 'text/html', content);
-    });
-  } else {
-    msg = 'ページがありません';
-    const content = ejs.render(other_page, { title: 'Other', content: msg });
-    sendResponse(response, 'text/html', content);
-  }
-};
+function response_other(request, response) {
+  const data = {
+    Taro: ['taro@yamada', '09-999-999', 'Tokyo'],
+    Hanako: ['hanako@flower', '080-888-888', 'Yokohama'],
+    Sachiko: ['sachi@happy', '070-777-777', 'Nagoya'],
+    Ichiro: ['ichi@baseball', '060-666-666', 'USA'],
+  };
+  const content = ejs.render(other_page, {
+    title: 'Other',
+    content: 'これはOtherページです。',
+    data,
+    filename: './html_files/data_item.ejs', // includeのために必須
+  });
+  sendResponse(response, 'text/html', content);
+}
 
 const getFromClient = (request, response) => {
   const url_parts = url.parse(request.url, true);
