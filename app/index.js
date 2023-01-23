@@ -15,8 +15,17 @@ const sendResponse = (response, content_type, render_result) => {
 };
 
 const response_index = (request, response) => {
-  const msg = 'これはIndexページです。';
-  const content = ejs.render(index_page, { title: 'Index', content: msg });
+  const data = {
+    Taro: '090-999-999',
+    Hanako: '080-888-888',
+    Sachiko: '070-777-777',
+    Ichiro: '060-666-666',
+  };
+  const content = ejs.render(index_page, {
+    title: 'Index',
+    content: 'これはIndexページです。',
+    data: data,
+  });
   sendResponse(response, 'text/html', content);
 };
 
