@@ -26,17 +26,22 @@ const write_index = (request, response) => {
   sendResponse(response, 'text/html', content);
 };
 
-const response_index = (request, response) => {
-  if ('POST' === request.method) {
-    let body = '';
-    request.on('data', (data) => (body += data));
+const promiseRequestData = (request) => {
+  let body = '';
+  request.on('data', (data) => (body += data));
+  return new Promise((resolve) => {
     request.on('end', () => {
-      data = qs.parse(body);
-      write_index(request, response);
+      resolve(qs.parse(body));
     });
-  } else {
-    write_index(request, response);
+  });
+};
+
+const response_index = async (request, response) => {
+  if ('POST' === request.method) {
+    // グローバル変数を上書きする
+    data = await promiseRequestData(request);
   }
+  write_index(request, response);
 };
 
 function response_other(request, response) {
