@@ -16,30 +16,52 @@ const sendResponse = (response, content_type, render_result) => {
 
 let data = { msg: 'no message...' };
 
+const setCookie = (key, value, response) => {
+  var cookie = escape(value);
+  response.setHeader('Set-Cookie', [key + '=' + cookie]);
+};
+
+const getCookie = (key, request) => {
+  var cookie_data = '';
+  if (request.headers.cookie !== undefined) {
+    cookie_data = request.headers.cookie;
+  }
+  console.log({ cookie_data });
+  var data = cookie_data.split(';');
+  for (const i in data) {
+    if (data[i].trim().startsWith(key + '=')) {
+      // 発見した
+      var result = data[i].trim().substring(key.length + 1);
+      return unescape(result);
+    }
+  }
+  return '';
+};
+
 const write_index = (request, response) => {
-  var msg = '※伝言を表示します。';
+  var cookie_data = getCookie('msg', request);
   var content = ejs.render(index_page, {
     title: 'Index',
-    content: msg,
+    content: '※伝言を表示しています。',
     data,
+    cookie_data,
   });
   sendResponse(response, 'text/html', content);
 };
 
-const promiseRequestData = (request) => {
-  let body = '';
-  request.on('data', (data) => (body += data));
-  return new Promise((resolve) => {
-    request.on('end', () => {
-      resolve(qs.parse(body));
-    });
-  });
-};
-
 const response_index = async (request, response) => {
   if ('POST' === request.method) {
-    // グローバル変数を上書きする
-    data = await promiseRequestData(request);
+    var body = '';
+    request.on('data', (data) => (body += data));
+    await new Promise((resolve) => {
+      request.on('end', () => {
+        // グローバル変数を上書きする
+        data = qs.parse(body);
+        // クッキーを保存する
+        setCookie('msg', data.msg, response);
+        resolve();
+      });
+    });
   }
   write_index(request, response);
 };
