@@ -25,6 +25,7 @@ const response_index = (request, response) => {
     title: 'Index',
     content: 'これはIndexページです。',
     data: data,
+    filename: './html_files/data_item.ejs', // includeのために必須
   });
   sendResponse(response, 'text/html', content);
 };

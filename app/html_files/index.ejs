@@ -13,11 +13,11 @@
     <div role="main">
       <p><%=content %></p>
       <table class="table">
-        <% for(var key in data) { %>
-        <tr>
-          <th><%= key %></th>
-          <td><%= data[key] %></td>
-        </tr>
+        <% let id = 0; %>
+        <% for(const key in data) { %>
+            <% id++; %>
+            <% const val = data[key]; %>
+            <%- include('data_item', { id, key, val }) %>
         <% } %>
       </table>
     </div>
